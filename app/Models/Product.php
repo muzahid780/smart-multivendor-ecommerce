@@ -12,6 +12,13 @@ class Product extends Model
         'description',
         'price',
         'image',
+        'category_id',
         'vendor_id',
     ];
+
+    // ================= CATEGORY RELATION =================
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

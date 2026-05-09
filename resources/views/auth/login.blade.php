@@ -1,47 +1,95 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SmartShop</title>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+<body class="bg-gray-100">
+
+<div class="min-h-screen flex">
+
+    <!-- LEFT SIDE -->
+    <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-indigo-600 to-blue-500 items-center justify-center p-10">
+
+        <div class="text-white max-w-md">
+
+            <h1 class="text-5xl font-bold mb-6">
+                SmartShop Ecommerce
+            </h1>
+
+            <p class="text-lg mb-6">
+                Professional multi-vendor platform like Daraz & Amazon
+            </p>
+
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+                 class="rounded-2xl shadow-2xl h-[350px] w-full object-cover">
+
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    </div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+    <!-- RIGHT SIDE -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center px-6">
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="bg-white w-full max-w-md p-10 rounded-2xl shadow-2xl">
+
+            <h2 class="text-3xl font-bold text-center text-indigo-600 mb-2">
+                Login
+            </h2>
+
+            <p class="text-center text-gray-500 mb-8">
+                Welcome back! Please login
+            </p>
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+
+                <!-- Email -->
+                <div class="mb-5">
+                    <label class="block mb-1">Email</label>
+                    <input type="email" name="email"
+                           class="w-full border rounded-lg p-3 focus:ring focus:ring-indigo-300"
+                           required>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-5">
+                    <label class="block mb-1">Password</label>
+                    <input type="password" name="password"
+                           class="w-full border rounded-lg p-3 focus:ring focus:ring-indigo-300"
+                           required>
+                </div>
+
+                <!-- Remember -->
+                <div class="flex justify-between items-center mb-6">
+
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="mr-2">
+                        Remember me
+                    </label>
+
+                    <a href="#" class="text-indigo-600 text-sm">
+                        Forgot?
+                    </a>
+
+                </div>
+
+                <!-- Button -->
+                <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg">
+                    Login
+                </button>
+
+            </form>
+
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+    </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+</div>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</body>
+</html>
