@@ -7,70 +7,177 @@ use App\Models\Product;
 
 class CartController extends Controller
 {
-    // ================= ADD TO CART =================
+    /*
+    |-----------------------------------------
+    | ADD TO CART (AJAX + NORMAL BOTH SUPPORT)
+    |-----------------------------------------
+    */
+
     public function addToCart($id)
     {
         $product = Product::findOrFail($id);
 
+        // STATUS CHECK
+        if ($product->status == 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product is unavailable!'
+            ], 400);
+        }
+
+        // STOCK CHECK
+        if ($product->stock <= 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product is out of stock!'
+            ], 400);
+        }
+
         $cart = session()->get('cart', []);
 
-        // If already exists
+        // IMAGE FIX
+        $productImage = null;
+
+        if (!empty($product->images)) {
+
+            if (is_array($product->images)) {
+                $productImage = $product->images[0] ?? null;
+            } else {
+                $images = json_decode($product->images, true);
+                $productImage = $images[0] ?? null;
+            }
+        }
+
+        // EXISTING PRODUCT
         if (isset($cart[$id])) {
+
+            if ($cart[$id]['quantity'] >= $product->stock) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Maximum stock limit reached!'
+                ], 400);
+            }
 
             $cart[$id]['quantity']++;
 
         } else {
 
             $cart[$id] = [
-                "id" => $product->id,
-                "name" => $product->name,
-                "price" => $product->price,
-                "image" => $product->image,
-                "quantity" => 1
+                "id"       => $product->id,
+                "name"     => $product->name,
+                "slug"     => $product->slug,
+                "price"    => $product->price,
+                "image"    => $productImage,
+                "stock"    => $product->stock,
+                "quantity" => 1,
             ];
         }
 
         session()->put('cart', $cart);
 
-        return redirect()->back()
-            ->with('success', 'Product added to cart!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product added to cart successfully!',
+            'cart_count' => count($cart)
+        ]);
     }
 
-    // ================= CART PAGE =================
+    /*
+    |-----------------------------------------
+    | CART PAGE
+    |-----------------------------------------
+    */
+
     public function cartPage()
     {
-        return view('frontend.cart');
+        $cart = session()->get('cart', []);
+
+        $subtotal = 0;
+
+        foreach ($cart as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+
+        $shipping = count($cart) > 0 ? 5 : 0;
+        $total = $subtotal + $shipping;
+
+        return view('frontend.cart', compact('cart', 'subtotal', 'shipping', 'total'));
     }
 
-    // ================= REMOVE ITEM =================
+    /*
+    |-----------------------------------------
+    | REMOVE ITEM
+    |-----------------------------------------
+    */
+
     public function removeCart($id)
     {
-        $cart = session()->get('cart');
+        $cart = session()->get('cart', []);
 
         if (isset($cart[$id])) {
-
             unset($cart[$id]);
-
             session()->put('cart', $cart);
         }
 
-        return redirect()->back()
-            ->with('success', 'Item removed!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product removed successfully!'
+        ]);
     }
 
-    // ================= UPDATE QUANTITY =================
+    /*
+    |-----------------------------------------
+    | UPDATE CART
+    |-----------------------------------------
+    */
+
     public function updateCart(Request $request, $id)
     {
-        $cart = session()->get('cart');
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
 
-        if (isset($cart[$id])) {
+        $cart = session()->get('cart', []);
 
-            $cart[$id]['quantity'] = $request->quantity;
-
-            session()->put('cart', $cart);
+        if (!isset($cart[$id])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cart item not found!'
+            ], 404);
         }
 
-        return redirect()->back()
-            ->with('success', 'Cart updated!');
+        $product = Product::findOrFail($id);
+
+        if ($request->quantity > $product->stock) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Requested quantity exceeds stock!'
+            ], 400);
+        }
+
+        $cart[$id]['quantity'] = $request->quantity;
+
+        session()->put('cart', $cart);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cart updated successfully!'
+        ]);
+    }
+
+    /*
+    |-----------------------------------------
+    | CLEAR CART
+    |-----------------------------------------
+    */
+
+    public function clearCart()
+    {
+        session()->forget('cart');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cart cleared successfully!'
+        ]);
     }
 }

@@ -1,209 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $product->name }}</title>
+@extends('frontend.master')
 
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+@section('content')
 
-<body class="bg-slate-100">
+<div class="bg-gray-100 min-h-screen py-12">
 
-<!-- HEADER -->
-<header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-6">
 
-    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <!-- PRODUCT SECTION -->
+        <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
 
-        <a href="/"
-           class="text-3xl font-bold text-indigo-600">
-            SmartShop
-        </a>
+            <div class="grid md:grid-cols-2 gap-10 p-8 md:p-12">
 
-        <!-- CART BUTTON -->
-        <a href="{{ route('cart.page') }}"
-           class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                <!-- PRODUCT IMAGE -->
+                <div>
 
-            Cart
+                    @if($product->images && count($product->images) > 0)
 
-        </a>
+                        <img
+                            src="{{ asset('storage/' . $product->images[0]) }}"
+                            alt="{{ $product->name }}"
+                            class="w-full h-[500px] object-cover rounded-2xl shadow-md">
 
-    </div>
+                    @else
 
-</header>
+                        <img
+                            src="https://via.placeholder.com/600x600"
+                            alt="No Image"
+                            class="w-full h-[500px] object-cover rounded-2xl shadow-md">
 
-<!-- PRODUCT DETAILS -->
-<section class="container mx-auto px-6 py-10">
-
-    <div class="bg-white rounded-3xl shadow-lg overflow-hidden grid md:grid-cols-2 gap-10 p-8">
-
-        <!-- PRODUCT IMAGE -->
-        <div>
-
-            @if($product->image)
-
-                <img src="{{ asset('storage/'.$product->image) }}"
-                     class="w-full h-[500px] object-cover rounded-2xl">
-
-            @else
-
-                <div class="w-full h-[500px] bg-gray-200 rounded-2xl flex items-center justify-center">
-
-                    <span class="text-gray-500 text-xl">
-                        No Image
-                    </span>
+                    @endif
 
                 </div>
 
-            @endif
+                <!-- PRODUCT DETAILS -->
+                <div class="flex flex-col justify-center">
 
-        </div>
+                    <!-- CATEGORY -->
+                    <span class="inline-block bg-indigo-100 text-indigo-600 text-sm font-semibold px-4 py-2 rounded-full mb-5 w-fit">
+                        {{ $product->category->name ?? 'No Category' }}
+                    </span>
 
-        <!-- PRODUCT INFO -->
-        <div class="flex flex-col justify-center">
+                    <!-- NAME -->
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6 leading-tight">
+                        {{ $product->name }}
+                    </h1>
 
-            <!-- CATEGORY -->
-            <p class="text-indigo-600 font-semibold text-lg mb-2">
+                    <!-- PRICE -->
+                    <div class="mb-6">
 
-                {{ $product->category->name ?? 'No Category' }}
-
-            </p>
-
-            <!-- TITLE -->
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">
-
-                {{ $product->name }}
-
-            </h1>
-
-            <!-- DESCRIPTION -->
-            <p class="text-gray-600 leading-7 mb-6">
-
-                {{ $product->description }}
-
-            </p>
-
-            <!-- PRICE -->
-            <div class="mb-8">
-
-                <span class="text-4xl font-bold text-green-600">
-
-                    ${{ $product->price }}
-
-                </span>
-
-            </div>
-
-            <!-- ACTION BUTTONS -->
-            <div class="flex gap-4">
-
-                <!-- ADD TO CART -->
-                <form action="{{ route('cart.add', $product->id) }}"
-                      method="POST">
-
-                    @csrf
-
-                    <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition">
-
-                        Add to Cart
-
-                    </button>
-
-                </form>
-
-                <!-- WISHLIST -->
-                <button class="bg-gray-200 hover:bg-gray-300 px-8 py-3 rounded-xl font-semibold transition">
-
-                    Wishlist
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- RELATED PRODUCTS -->
-<section class="container mx-auto px-6 pb-12">
-
-    <div class="flex justify-between items-center mb-6">
-
-        <h2 class="text-3xl font-bold text-gray-800">
-            Related Products
-        </h2>
-
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-
-        @forelse($relatedProducts as $item)
-
-            <div class="bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
-
-                <!-- IMAGE -->
-                @if($item->image)
-
-                    <img src="{{ asset('storage/'.$item->image) }}"
-                         class="w-full h-52 object-cover">
-
-                @else
-
-                    <div class="w-full h-52 bg-gray-200 flex items-center justify-center">
-
-                        <span class="text-gray-500">
-                            No Image
+                        <span class="text-4xl font-bold text-indigo-600">
+                            ${{ $product->price }}
                         </span>
 
                     </div>
 
-                @endif
+                    <!-- STOCK -->
+                    <div class="mb-6">
 
-                <!-- CONTENT -->
-                <div class="p-4">
+                        @if($product->stock > 0)
 
-                    <h3 class="text-lg font-bold mb-2">
+                            <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold">
+                                In Stock ({{ $product->stock }})
+                            </span>
 
-                        {{ $item->name }}
+                        @else
 
-                    </h3>
+                            <span class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-semibold">
+                                Out Of Stock
+                            </span>
 
-                    <p class="text-indigo-600 font-bold text-xl mb-4">
+                        @endif
 
-                        ${{ $item->price }}
+                    </div>
 
+                    <!-- DESCRIPTION -->
+                    <p class="text-gray-600 leading-8 text-lg mb-10">
+                        {{ $product->description }}
                     </p>
 
-                    <!-- DETAILS BUTTON -->
-                    <a href="{{ route('product.details', $item->slug) }}"
-                       class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+                    <!-- ACTION BUTTONS -->
+                    <div class="flex flex-col sm:flex-row gap-4">
 
-                        View Details
+                        <!-- ADD TO CART -->
+                        <form action="{{ route('cart.add', $product->id) }}"
+                              method="POST">
 
-                    </a>
+                            @csrf
+
+                            <button
+                                type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-xl font-semibold transition duration-300">
+
+                                Add To Cart
+
+                            </button>
+
+                        </form>
+
+                        <!-- BACK BUTTON -->
+                        <a href="{{ route('shop') }}"
+                           class="bg-gray-900 hover:bg-black text-white px-10 py-4 rounded-xl font-semibold transition duration-300 text-center">
+
+                            Back To Shop
+
+                        </a>
+
+                    </div>
 
                 </div>
 
             </div>
 
-        @empty
+        </div>
 
-            <div class="col-span-4 text-center py-10">
+        <!-- RELATED PRODUCTS -->
+        <div class="mt-20">
 
-                <h2 class="text-2xl text-gray-500">
-                    No Related Products
+            <div class="flex items-center justify-between mb-10">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">
+                    Related Products
                 </h2>
+
+                <a href="{{ route('shop') }}"
+                   class="text-indigo-600 font-semibold hover:underline">
+
+                    View All
+
+                </a>
 
             </div>
 
-        @endforelse
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                @forelse($relatedProducts as $item)
+
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition duration-300">
+
+                    <!-- IMAGE -->
+                    <a href="{{ route('product.details', $item->slug) }}">
+
+                        @if($item->images && count($item->images) > 0)
+
+                            <img
+                                src="{{ asset('storage/' . $item->images[0]) }}"
+                                alt="{{ $item->name }}"
+                                class="w-full h-56 object-cover">
+
+                        @else
+
+                            <img
+                                src="https://via.placeholder.com/400x400"
+                                alt="No Image"
+                                class="w-full h-56 object-cover">
+
+                        @endif
+
+                    </a>
+
+                    <!-- CONTENT -->
+                    <div class="p-5">
+
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-1">
+                            {{ $item->name }}
+                        </h3>
+
+                        <div class="flex justify-between items-center">
+
+                            <span class="text-indigo-600 text-xl font-bold">
+                                ${{ $item->price }}
+                            </span>
+
+                            <a href="{{ route('product.details', $item->slug) }}"
+                               class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+
+                                View
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                @empty
+
+                <div class="col-span-4 text-center py-10">
+
+                    <h2 class="text-gray-500 text-2xl font-bold">
+                        No Related Products
+                    </h2>
+
+                </div>
+
+                @endforelse
+
+            </div>
+
+        </div>
 
     </div>
 
-</section>
+</div>
 
-</body>
-</html>
+@endsection

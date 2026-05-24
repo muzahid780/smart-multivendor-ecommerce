@@ -1,0 +1,51 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('products', function (Blueprint $table) {
+
+            $table->id();
+
+            // ================= CATEGORY =================
+            $table->foreignId('category_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            // ================= PRODUCT INFO =================
+            $table->string('name');
+            $table->string('slug')->unique();
+
+            $table->longText('description')->nullable();
+
+            $table->decimal('price', 10, 2)->default(0);
+
+            $table->integer('stock')->default(0);
+
+            $table->longText('images')->nullable();
+
+            $table->boolean('status')->default(1);
+
+            // ================= VENDOR =================
+            $table->foreignId('vendor_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->timestamps();
+
+            // ================= INDEX =================
+            $table->index(['category_id', 'status']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('products');
+    }
+};

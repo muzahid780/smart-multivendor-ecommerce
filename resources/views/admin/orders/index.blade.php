@@ -2,116 +2,109 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Orders</title>
+    <title>Admin Orders</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-sky-100">
+<body class="bg-gray-100">
 
-<div class="flex min-h-screen">
+<div class="container mx-auto px-6 py-10">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-gray-900 text-white p-5">
-        <h1 class="text-2xl font-bold mb-6">Admin Panel</h1>
+    <h1 class="text-3xl font-bold mb-6">All Orders</h1>
 
-        <nav class="space-y-2">
-            <a href="/admin/dashboard" class="block p-2 rounded hover:bg-gray-800">Dashboard</a>
-            <a href="/admin/products" class="block p-2 rounded hover:bg-gray-800">Products</a>
-            <a href="/admin/orders" class="block p-2 rounded bg-gray-800">Orders</a>
-        </nav>
-    </aside>
+    <div class="bg-white shadow rounded overflow-x-auto">
 
-    <!-- Main -->
-    <main class="flex-1 p-8">
+        <table class="w-full">
 
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold">Orders</h2>
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-3 text-left">Order ID</th>
+                    <th class="p-3 text-left">Customer</th>
+                    <th class="p-3 text-left">Phone</th>
+                    <th class="p-3 text-left">Total</th>
+                    <th class="p-3 text-left">Payment</th>
+                    <th class="p-3 text-left">Status</th>
+                    <th class="p-3 text-left">Date</th>
+                    <th class="p-3 text-left">Action</th>
+                </tr>
+            </thead>
 
-            <a href="/admin/orders/create"
-               class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-                + Create Order
-            </a>
-        </div>
+            <tbody>
 
-        <div class="bg-white shadow rounded-xl overflow-hidden">
-
-            <table class="w-full text-left">
-
-                <thead class="bg-gray-200">
-                    <tr>
-                        <th class="p-3">ID</th>
-                        <th class="p-3">Customer</th>
-                        <th class="p-3">Product</th>
-                        <th class="p-3">Qty</th>
-                        <th class="p-3">Total</th>
-                        <th class="p-3">Status</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                @forelse($orders as $order)
+                @foreach($orders as $order)
 
                     <tr class="border-b">
 
-                        <td class="p-3">{{ $order->id }}</td>
-
                         <td class="p-3">
-                            <div>
-                                <div class="font-semibold">{{ $order->customer_name }}</div>
-                                <div class="text-sm text-gray-500">{{ $order->customer_email }}</div>
-                            </div>
+                            #{{ $order->id }}
                         </td>
 
                         <td class="p-3">
-                            {{ $order->product->name ?? 'Deleted Product' }}
+                            {{ $order->user->name ?? 'Guest' }}
                         </td>
 
                         <td class="p-3">
-                            {{ $order->quantity }}
+                            {{ $order->phone }}
+                        </td>
+
+                        <td class="p-3 font-semibold">
+                            {{ $order->total_price }} ৳
                         </td>
 
                         <td class="p-3">
-                            ${{ $order->total_price }}
+                            {{ ucfirst($order->payment_status) }}
                         </td>
 
                         <td class="p-3">
 
-                            <form action="{{ route('orders.status', $order->id) }}"
-                                  method="POST">
+                            @if($order->order_status == 'pending')
+                                <span class="text-yellow-600 font-semibold">Pending</span>
+                            @elseif($order->order_status == 'processing')
+                                <span class="text-blue-600 font-semibold">Processing</span>
+                            @else
+                                <span class="text-green-600 font-semibold">Completed</span>
+                            @endif
+
+                        </td>
+
+                        <td class="p-3">
+                            {{ $order->created_at->format('d M Y') }}
+                        </td>
+
+                        <td class="p-3 flex gap-2">
+
+                            <a href="{{ route('admin.orders.show', $order->id) }}"
+                               class="bg-gray-800 text-white px-3 py-1 rounded text-sm">
+                                View
+                            </a>
+
+                            <form action="{{ route('admin.orders.status', $order->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
 
-                                <button class="px-3 py-1 rounded text-white
-                                    {{ $order->status == 'pending' ? 'bg-yellow-500' : 'bg-green-600' }}">
+                                <select name="status"
+                                        class="border p-1 rounded text-sm"
+                                        onchange="this.form.submit()">
 
-                                    {{ ucfirst($order->status) }}
+                                    <option disabled selected>Update</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="completed">Completed</option>
 
-                                </button>
-
+                                </select>
                             </form>
 
                         </td>
 
                     </tr>
 
-                @empty
+                @endforeach
 
-                    <tr>
-                        <td colspan="6" class="p-5 text-center text-gray-500">
-                            No orders found
-                        </td>
-                    </tr>
+            </tbody>
 
-                @endforelse
+        </table>
 
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </main>
+    </div>
 
 </div>
 

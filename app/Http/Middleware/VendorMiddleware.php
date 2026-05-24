@@ -8,16 +8,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VendorMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        if(auth()->check() && auth()->user()->role == 'vendor')
-        {
-            return $next($request);
+        // 1. user login check
+        if (!auth()->check()) {
+            abort(403, 'Unauthorized');
         }
 
-        abort(403);
+        // 2. get role safely
+        $role = auth()->user()->role ?? null;
+
+        // 3. normalize role (case-insensitive safe)
+        if (strtolower($role) !== 'vendor') {
+            abort(403, 'Access denied: Vendor only area');
+        }
+
+        return $next($request);
     }
 }

@@ -6,9 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
+     //Run the migrations.
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
@@ -16,18 +15,22 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('slug')->unique();
+
+            // category image
             $table->string('image')->nullable();
 
-            // active / inactive category
+            // 1 = active, 0 = inactive
             $table->boolean('status')->default(1);
 
             $table->timestamps();
+
+            //performance boost for filtering
+            $table->index('status');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+     //Reverse the migrations.
+
     public function down(): void
     {
         Schema::dropIfExists('categories');

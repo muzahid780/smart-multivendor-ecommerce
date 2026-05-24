@@ -2,156 +2,168 @@
 
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| CONTROLLERS
+|--------------------------------------------------------------------------
+*/
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CartController;
- use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CheckoutController;
 
-// ================= HOME =================
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\Vendor\VendorController;
+use App\Http\Controllers\Vendor\VendorProductController;
+use App\Http\Controllers\Vendor\VendorOrderController;
 
-// ================= FRONTEND ROUTES =================
+/*
+|--------------------------------------------------------------------------
+| FRONTEND ROUTES
+|--------------------------------------------------------------------------
+*/
 
-// Category Wise Products
-Route::get('/category/{slug}', [ProductController::class, 'categoryProducts'])
-    ->name('category.products');
+// HOME
+Route::get('/', [ProductController::class, 'home'])->name('home');
 
-// Product Details
-Route::get('/product/{slug}', [ProductController::class, 'show'])
-    ->name('product.details');
+/*
+|--------------------------------------------------------------------------
+| SHOP SYSTEM (FINAL FIXED)
+|--------------------------------------------------------------------------
+*/
 
+// SHOP PAGE
+Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 
-// ================= CHECKOUT =================
+// SEARCH (category + product search)
+Route::get('/search', [ProductController::class, 'search'])->name('product.search');
 
-// Checkout page
-Route::get('/checkout', [CheckoutController::class, 'checkout'])
-    ->name('checkout.page');
-
-// Place order
-Route::post('/place-order', [CheckoutController::class, 'placeOrder'])
-    ->name('place.order');
-
-// ================= CART =================
-
-// Add to cart
-Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])
-    ->name('cart.add');
-
-// Cart page
-Route::get('/cart', [CartController::class, 'cartPage'])
-    ->name('cart.page');
-
-// Remove item
-Route::delete('/cart/remove/{id}', [CartController::class, 'removeCart'])
-    ->name('cart.remove');
-
-// Update quantity
-Route::post('/cart/update/{id}', [CartController::class, 'updateCart'])
-    ->name('cart.update');
+// PRODUCT DETAILS
+Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.details');
 
 
-// ================= ADMIN ROUTES =================
-Route::middleware(['auth', 'admin'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| CATEGORY ROUTES
+|--------------------------------------------------------------------------
+*/
 
-    // Dashboard
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
-        ->name('admin.dashboard');
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 
-    // ================= PRODUCTS =================
+Route::get('/category/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 
-    Route::get('/admin/products', [ProductController::class, 'index'])
-        ->name('products.index');
 
-    Route::get('/admin/products/create', [ProductController::class, 'create'])
-        ->name('products.create');
+/*
+|--------------------------------------------------------------------------
+| CART ROUTES
+|--------------------------------------------------------------------------
+*/
 
-    Route::post('/admin/products', [ProductController::class, 'store'])
-        ->name('products.store');
+Route::prefix('cart')->name('cart.')->group(function () {
 
-    Route::get('/admin/products/{id}/edit', [ProductController::class, 'edit'])
-        ->name('products.edit');
+    Route::post('/add/{id}', [CartController::class, 'addToCart'])->name('add');
 
-    Route::put('/admin/products/{id}', [ProductController::class, 'update'])
-        ->name('products.update');
+    Route::get('/', [CartController::class, 'cartPage'])->name('page');
 
-    Route::delete('/admin/products/{id}', [ProductController::class, 'destroy'])
-        ->name('products.destroy');
+    Route::post('/update/{id}', [CartController::class, 'updateCart'])->name('update');
 
-    // ================= CATEGORIES =================
+    Route::post('/remove/{id}', [CartController::class, 'removeCart'])->name('remove');
 
-    Route::get('/admin/categories', [CategoryController::class, 'index'])
-        ->name('categories.index');
-
-    Route::get('/admin/categories/create', [CategoryController::class, 'create'])
-        ->name('categories.create');
-
-    Route::post('/admin/categories', [CategoryController::class, 'store'])
-        ->name('categories.store');
-
-    Route::get('/admin/categories/{id}/edit', [CategoryController::class, 'edit'])
-        ->name('categories.edit');
-
-    Route::put('/admin/categories/{id}', [CategoryController::class, 'update'])
-        ->name('categories.update');
-
-    Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy'])
-        ->name('categories.destroy');
-
-    // ================= ORDERS =================
-
-    Route::get('/admin/orders', [OrderController::class, 'index'])
-        ->name('orders.index');
-
-    Route::get('/admin/orders/create', [OrderController::class, 'create'])
-        ->name('orders.create');
-
-    Route::post('/admin/orders', [OrderController::class, 'store'])
-        ->name('orders.store');
-
-    Route::patch('/admin/orders/{id}/status', [OrderController::class, 'updateStatus'])
-        ->name('orders.status');
-
-    Route::get('/admin/orders/pdf', [OrderController::class, 'exportPdf'])
-        ->name('orders.pdf');
+    Route::post('/clear', [CartController::class, 'clearCart'])->name('clear');
 });
 
 
-// ================= VENDOR ROUTES =================
-Route::middleware(['auth', 'vendor'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('/vendor/dashboard', [VendorController::class, 'dashboard'])
-        ->name('vendor.dashboard');
-});
-
-
-// ================= USER DASHBOARD =================
-Route::get('/dashboard', function () {
-
-    return view('dashboard');
-
-})->middleware(['auth', 'verified'])
-  ->name('dashboard');
-
-
-// ================= PROFILE ROUTES =================
 Route::middleware('auth')->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
+    Route::post('/place-order', [OrderController::class, 'placeOrder'])->name('place.order');
 
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
+    Route::get('/my-orders', [OrderController::class, 'myOrders'])->name('my.orders');
+
+    Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 });
 
 
-// ================= AUTH =================
-require __DIR__.'/auth.php';
+/*
+|--------------------------------------------------------------------------
+| ORDER SUCCESS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/order-success', function () {
+    return view('frontend.success');
+})->name('order.success');
+
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN PANEL
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    Route::resource('products', ProductController::class);
+
+    Route::resource('categories', CategoryController::class);
+
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+
+    Route::get('/orders/{id}', [OrderController::class, 'showAdmin'])->name('orders.show');
+
+    Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| VENDOR PANEL
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'vendor'])->group(function () {
+
+    Route::get('/dashboard', [VendorController::class, 'dashboard'])->name('dashboard');
+
+    Route::resource('products', VendorProductController::class);
+
+    Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
+
+    Route::get('/orders/{id}', [VendorOrderController::class, 'show'])->name('orders.show');
+
+    Route::patch('/orders/{id}/status', [VendorOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| PROFILE ROUTES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__ . '/auth.php';

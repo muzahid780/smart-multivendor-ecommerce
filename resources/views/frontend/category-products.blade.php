@@ -16,7 +16,7 @@
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
 
         <a href="/" class="text-2xl font-bold text-indigo-600">
-            SmartShop
+            ShopNest
         </a>
 
         <a href="/"
@@ -48,12 +48,30 @@
 
         @forelse($products as $product)
 
+            @php
+                $images = $product->images;
+
+                if (is_string($images)) {
+                    $images = json_decode($images, true) ?? [];
+                }
+            @endphp
+
             <!-- PRODUCT CARD -->
             <div class="bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden">
 
                 <!-- IMAGE -->
-                <img src="{{ asset('storage/'.$product->image) }}"
-                     class="w-full h-52 object-cover">
+                @if(is_array($images) && count($images) > 0)
+
+                    <img src="{{ asset('storage/' . $images[0]) }}"
+                         class="w-full h-52 object-cover">
+
+                @else
+
+                    <div class="w-full h-52 bg-gray-200 flex items-center justify-center text-gray-400">
+                        No Image
+                    </div>
+
+                @endif
 
                 <!-- CONTENT -->
                 <div class="p-4">
@@ -70,7 +88,7 @@
                     <div class="flex justify-between items-center">
 
                         <span class="text-indigo-600 font-bold text-xl">
-                            ${{ $product->price }}
+                            ৳{{ number_format($product->price, 2) }}
                         </span>
 
                         <!-- DETAILS BUTTON -->
@@ -99,6 +117,11 @@
 
         @endforelse
 
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="mt-10">
+        {{ $products->links() }}
     </div>
 
 </div>

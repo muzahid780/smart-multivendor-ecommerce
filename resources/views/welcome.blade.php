@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart MultiVendor Ecommerce</title>
+    <title>Smart MultiVendor E-commerce</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -17,7 +17,7 @@
 
             <!-- Logo -->
             <a href="/" class="text-2xl font-bold text-indigo-600">
-                SmartShop
+                ShopNest
             </a>
 
             <!-- Search -->
@@ -70,7 +70,7 @@
             <div>
 
                 <h1 class="text-5xl font-bold leading-tight mb-6">
-                    Best MultiVendor Ecommerce Platform
+                    Best MultiVendor E-commerce Platform
                 </h1>
 
                 <p class="text-lg mb-6">
@@ -112,15 +112,15 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
-                    <h3 class="font-bold text-lg">Fashion</h3>
+                    <h3 class="font-bold text-lg">Fashions</h3>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
-                    <h3 class="font-bold text-lg">Shoes</h3>
+                    <h3 class="font-bold text-lg">Groceries</h3>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
-                    <h3 class="font-bold text-lg">Watches</h3>
+                    <h3 class="font-bold text-lg">Books</h3>
                 </div>
 
             </div>
@@ -330,9 +330,9 @@
         <div class="container mx-auto px-6 grid md:grid-cols-4 gap-8">
 
             <div>
-                <h3 class="text-xl font-bold mb-4">SmartShop</h3>
+                <h3 class="text-xl font-bold mb-4">ShopNest</h3>
                 <p class="text-gray-400">
-                    Professional multi-vendor ecommerce platform.
+                    Professional multi-vendor e-commerce platform.
                 </p>
             </div>
 
@@ -368,7 +368,7 @@
         </div>
 
         <div class="text-center text-gray-500 mt-10">
-            © 2026 SmartShop. All rights reserved.
+            © 2026 ShopNest. All rights reserved.
         </div>
 
     </footer>

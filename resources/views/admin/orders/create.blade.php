@@ -21,7 +21,6 @@
         </nav>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 p-8">
 
         <h2 class="text-3xl font-bold mb-6">Create Order</h2>
@@ -32,19 +31,16 @@
 
                 @csrf
 
-                <!-- Customer Name -->
                 <input type="text"
                        name="customer_name"
                        placeholder="Customer Name"
                        class="w-full border p-2 mb-3 rounded">
 
-                <!-- Customer Email -->
                 <input type="email"
                        name="customer_email"
                        placeholder="Customer Email"
                        class="w-full border p-2 mb-3 rounded">
 
-                <!-- Product Select -->
                 <select name="product_id"
                         class="w-full border p-2 mb-3 rounded">
 
@@ -58,13 +54,11 @@
 
                 </select>
 
-                <!-- Quantity -->
                 <input type="number"
                        name="quantity"
                        value="1"
                        class="w-full border p-2 mb-3 rounded">
 
-                <!-- Submit -->
                 <button class="bg-indigo-600 text-white px-4 py-2 rounded">
                     Create Order
                 </button>

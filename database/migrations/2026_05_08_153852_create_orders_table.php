@@ -6,39 +6,45 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
 
             $table->id();
 
-            // Customer Info
-            $table->string('customer_name');
-            $table->string('customer_email');
+            // ================= USER =================
+            $table->foreignId('user_id')
+                ->constrained()
+                ->onDelete('cascade');
 
-            // Product Relation
-            $table->foreignId('product_id')
-                  ->constrained()
-                  ->onDelete('cascade');
+            // ================= CUSTOMER INFO =================
+            $table->string('phone');
+            $table->text('shipping_address');
 
-            // Order Details
-            $table->integer('quantity')->default(1);
+            // ================= ORDER TOTAL =================
+            $table->decimal('total_price', 10, 2)->default(0);
 
-            $table->decimal('total_price', 10, 2);
+            // ================= PAYMENT =================
+            $table->string('payment_method')
+                ->default('cash_on_delivery');
 
-            // Order Status
-            $table->string('status')->default('pending');
+            $table->string('payment_status')
+                ->default('pending'); 
+                // pending | paid | failed
+
+            // ================= ORDER STATUS =================
+            $table->string('order_status')
+                ->default('pending');
+                // pending | processing | completed | cancelled
+
+            // ================= INDEX (FAST QUERY) =================
+            $table->index('user_id');
+            $table->index('order_status');
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('orders');

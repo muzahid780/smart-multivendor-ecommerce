@@ -1,100 +1,181 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
+<nav class="bg-white shadow-md border-b border-gray-100">
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
+
+        <div class="flex justify-between items-center h-20">
+
+            <!-- LEFT SIDE -->
+            <div class="flex items-center gap-10">
+
+                <!-- LOGO -->
+                <a href="{{ url('/') }}" class="text-3xl font-extrabold text-indigo-600">
+                    ShopNest
+                </a>
+
+                <!-- UNIVERSAL SEARCH (FIXED + SAFE) -->
+                <div class="relative hidden md:block w-[420px]">
+
+                    <input type="text"
+                           id="searchInput"
+                           autocomplete="off"
+                           placeholder="Search products, brands, categories..."
+                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+                    <!-- DROPDOWN -->
+                    <div id="searchResults"
+                         class="absolute left-0 right-0 bg-white shadow-lg rounded-xl mt-2 hidden max-h-96 overflow-y-auto z-50">
+                    </div>
+
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+            <!-- DESKTOP MENU -->
+            <div class="hidden md:flex items-center gap-8">
 
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                <a href="{{ url('/') }}" class="hover:text-indigo-600 font-medium">Home</a>
+
+                <a href="{{ route('products.index') }}" class="hover:text-indigo-600 font-medium">Products</a>
+
+                <!-- CART -->
+                @php
+                    $cartCount = count(session('cart', []));
+                @endphp
+
+                <a href="{{ route('cart.page') }}" class="relative hover:text-indigo-600 font-medium">
+                    Cart
+
+                    @if($cartCount > 0)
+                        <span class="absolute -top-3 -right-4 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
+                </a>
+
+                <!-- AUTH -->
+                @auth
+                    <div class="relative group">
+
+                        <button class="bg-indigo-600 text-white px-5 py-2 rounded-xl">
+                            {{ Auth::user()->name }}
                         </button>
-                    </x-slot>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        <div class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-xl hidden group-hover:block">
 
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
+                            <a href="{{ url('/dashboard') }}" class="block px-4 py-3 hover:bg-gray-100 rounded-t-xl">
+                                Dashboard
+                            </a>
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+                            <a href="{{ route('profile.edit') }}" class="block px-4 py-3 hover:bg-gray-100">
+                                Profile
+                            </a>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full text-left px-4 py-3 hover:bg-gray-100 rounded-b-xl">
+                                    Logout
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                @else
+                    <div class="flex items-center gap-3">
+
+                        <a href="{{ route('login') }}" class="hover:text-indigo-600 font-medium">
+                            Login
+                        </a>
+
+                        <a href="{{ route('register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl">
+                            Register
+                        </a>
+
+                    </div>
+                @endauth
+
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+            <!-- MOBILE -->
+            <div class="md:hidden">
+                <button class="text-gray-700 text-2xl">☰</button>
             </div>
+
         </div>
+
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-        </div>
-    </div>
 </nav>
+
+<!-- ================= SAFE AJAX SEARCH SCRIPT ================= -->
+<script>
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+
+let timer;
+
+if (searchInput) {
+
+    searchInput.addEventListener("keyup", function () {
+
+        clearTimeout(timer);
+
+        let query = this.value.trim();
+
+        if (query.length < 2) {
+            searchResults.classList.add("hidden");
+            searchResults.innerHTML = "";
+            return;
+        }
+
+        timer = setTimeout(() => {
+
+            fetch(`/live-search?query=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    searchResults.innerHTML = "";
+
+                    if (!data || data.length === 0) {
+                        searchResults.innerHTML = `
+                            <div class="p-3 text-gray-500 text-sm">
+                                No products found
+                            </div>`;
+                    } else {
+
+                        data.forEach(item => {
+
+                            searchResults.innerHTML += `
+                                <a href="/product/${item.id}"
+                                   class="block px-4 py-3 hover:bg-gray-100 border-b">
+
+                                    <div class="font-medium">${item.name}</div>
+                                    <div class="text-xs text-gray-500">
+                                        ${item.category ?? ''} ${item.brand ?? ''}
+                                    </div>
+
+                                </a>
+                            `;
+                        });
+                    }
+
+                    searchResults.classList.remove("hidden");
+                })
+                .catch(err => {
+                    console.error("Search error:", err);
+                });
+
+        }, 300);
+
+    });
+
+    // click outside close
+    document.addEventListener("click", function (e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add("hidden");
+        }
+    });
+}
+</script>

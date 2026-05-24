@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - SmartShop</title>
+    <title>Register -ShopNest</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -18,7 +18,7 @@
         <div class="text-white max-w-md">
 
             <h1 class="text-5xl font-bold mb-6">
-                Join SmartShop
+                Join ShopNest
             </h1>
 
             <p class="text-lg mb-6">
