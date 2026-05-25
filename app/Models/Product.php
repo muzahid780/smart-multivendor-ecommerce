@@ -20,15 +20,22 @@ class Product extends Model
         'status',
         'category_id',
         'vendor_id',
+        'is_approved',
+        'approval_status',
     ];
 
     protected $casts = [
         'images' => 'array',
         'status' => 'boolean',
-        'stock'  => 'integer',
+        'is_approved' => 'boolean',
+        'stock' => 'integer',
     ];
 
-    /* ================= RELATIONS ================= */
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
 
     public function category()
     {
@@ -48,22 +55,18 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    /* ================= IMAGE (SAFE + FAST) ================= */
+    /*
+    |--------------------------------------------------------------------------
+    | IMAGE HELPERS
+    |--------------------------------------------------------------------------
+    */
 
     public function getFirstImageAttribute()
     {
         $images = $this->images;
 
-        if (is_array($images) && !empty($images)) {
+        if (is_array($images) && count($images)) {
             return Storage::url($images[0]);
-        }
-
-        if (is_string($images)) {
-            $decoded = json_decode($images, true);
-
-            if (is_array($decoded) && !empty($decoded)) {
-                return Storage::url($decoded[0]);
-            }
         }
 
         return asset('images/no-image.png');
@@ -71,45 +74,60 @@ class Product extends Model
 
     public function getAllImagesAttribute()
     {
-        $images = $this->images;
-
-        if (is_string($images)) {
-            $images = json_decode($images, true);
-        }
-
-        if (!is_array($images)) {
+        if (!is_array($this->images)) {
             return [];
         }
 
-        return collect($images)->map(function ($img) {
+        return collect($this->images)->map(function ($img) {
             return Storage::url($img);
         })->toArray();
     }
 
-    /* ================= SCOPES ================= */
+    /*
+    |--------------------------------------------------------------------------
+    | SCOPES
+    |--------------------------------------------------------------------------
+    */
 
+    // active products
     public function scopeActive($query)
     {
         return $query->where('status', 1);
     }
 
+    // approved products only
+    public function scopeApproved($query)
+    {
+        return $query
+            ->where('status', 1)
+            ->where('is_approved', true)
+            ->where('approval_status', 'approved');
+    }
+
+    // stock available
     public function scopeInStock($query)
     {
         return $query->where('stock', '>', 0);
     }
 
+    // vendor products
     public function scopeVendor($query, $vendorId)
     {
         return $query->where('vendor_id', $vendorId);
     }
 
+    // search
     public function scopeSearch($query, $term)
     {
-        if (!$term) return $query;
+        if (!$term) {
+            return $query;
+        }
 
         return $query->where(function ($q) use ($term) {
+
             $q->where('name', 'LIKE', "%{$term}%")
-              ->orWhere('description', 'LIKE', "%{$term}%");
+                ->orWhere('description', 'LIKE', "%{$term}%");
+
         });
     }
 }

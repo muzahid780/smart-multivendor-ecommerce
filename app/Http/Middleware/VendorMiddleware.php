@@ -10,19 +10,50 @@ class VendorMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. user login check
+        // =========================
+        // 1. AUTH CHECK
+        // =========================
         if (!auth()->check()) {
-            abort(403, 'Unauthorized');
+            return redirect()->route('login');
         }
 
-        // 2. get role safely
-        $role = auth()->user()->role ?? null;
+        $user = auth()->user();
 
-        // 3. normalize role (case-insensitive safe)
-        if (strtolower($role) !== 'vendor') {
+        if (!$user) {
+            abort(403, 'Unauthorized access');
+        }
+
+        // =========================
+        // 2. SAFE ROLE NORMALIZATION
+        // =========================
+        $role = strtolower(trim($user->role ?? ''));
+
+        // =========================
+        // 3. ROLE CHECK LOGIC
+        // =========================
+
+        // allowed roles (future scalable)
+        $allowedRoles = ['vendor', 'admin'];
+
+        if (!in_array($role, $allowedRoles)) {
             abort(403, 'Access denied: Vendor only area');
         }
 
-        return $next($request);
+        // =========================
+        // 4. PERMISSION RULES
+        // =========================
+
+        // vendor allowed
+        if ($role === 'vendor') {
+            return $next($request);
+        }
+
+        // admin also allowed (optional bypass)
+        if ($role === 'admin') {
+            return $next($request);
+        }
+
+        // fallback
+        abort(403, 'Access denied');
     }
 }

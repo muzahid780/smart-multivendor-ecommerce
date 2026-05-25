@@ -15,21 +15,20 @@ class ProductController extends Controller
     public function home()
     {
         return view('frontend.home', [
-            'products' => Product::latest()->paginate(8),
+            'products' => Product::approved()->latest()->paginate(8),
             'categories' => Category::latest()->get(),
         ]);
     }
 
-    /* ================= SHOP (MAIN FIX HERE) ================= */
+    /* ================= SHOP ================= */
 
     public function shop(Request $request)
     {
         $search = $request->search;
         $category = $request->category;
 
-        $products = Product::query()
+        $products = Product::approved()
 
-            // SEARCH FIX (product + category)
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('name', 'LIKE', "%{$search}%")
@@ -41,25 +40,14 @@ class ProductController extends Controller
                 });
             })
 
-            // CATEGORY FIX (IMPORTANT)
             ->when($category, function ($q) use ($category) {
-
-                $q->where(function ($sub) use ($category) {
-
-                    // if ID
-                    if (is_numeric($category)) {
-                        $sub->where('category_id', $category);
-                    }
-
-                    // if slug
-                    else {
-                        $sub->whereHas('category', function ($c) use ($category) {
-                            $c->where('slug', $category);
-                        });
-                    }
-
-                });
-
+                if (is_numeric($category)) {
+                    $q->where('category_id', $category);
+                } else {
+                    $q->whereHas('category', function ($c) use ($category) {
+                        $c->where('slug', $category);
+                    });
+                }
             })
 
             ->latest()
@@ -68,7 +56,7 @@ class ProductController extends Controller
 
         return view('frontend.shop', [
             'products' => $products,
-            'categories' => Category::latest()->get(),
+            'categories' => Category::latest()->get(), // 🔥 FIXED HERE
             'search' => $search,
             'category' => $category,
         ]);
@@ -79,15 +67,18 @@ class ProductController extends Controller
         return $this->shop($request);
     }
 
-    /* ================= DETAILS ================= */
+    /* ================= PRODUCT DETAILS ================= */
 
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)->firstOrFail();
+        $product = Product::approved()
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         return view('frontend.product-details', [
             'product' => $product,
-            'relatedProducts' => Product::where('category_id', $product->category_id)
+            'relatedProducts' => Product::approved()
+                ->where('category_id', $product->category_id)
                 ->where('id', '!=', $product->id)
                 ->latest()
                 ->take(4)
@@ -96,7 +87,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /* ================= VENDOR PART (UNCHANGED) ================= */
+    /* ================= VENDOR PANEL ================= */
 
     public function index()
     {
@@ -144,11 +135,14 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'images' => $images,
-            'status' => 1,
+
+            'status' => 0,
+            'is_approved' => false,
+            'approval_status' => 'pending',
         ]);
 
         return redirect()->route('vendor.products.index')
-            ->with('success', 'Product created successfully');
+            ->with('success', 'Product submitted for admin approval');
     }
 
     public function edit($id)
