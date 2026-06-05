@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
-    /* =========================================
-    | ADMIN CATEGORY
-    ========================================= */
-
+    // ADMIN CATEGORY
     public function index()
     {
         $categories = Category::latest()->get();
@@ -113,10 +110,7 @@ class CategoryController extends Controller
             ->with('success', 'Category deleted successfully');
     }
 
-    /* =========================================
-    | FRONTEND CATEGORY
-    ========================================= */
-
+    //FRONTEND CATEGORY
     public function frontendIndex()
     {
         $categories = Category::where('status', 1)
@@ -133,13 +127,11 @@ class CategoryController extends Controller
             ->where('status', 1)
             ->firstOrFail();
 
-        // CATEGORY PRODUCTS
         $products = $category->products()
             ->where('status', 1)
             ->latest()
             ->paginate(12);
 
-        // FIXED VIEW
         return view('frontend.category-products', compact('category', 'products'));
     }
 }
