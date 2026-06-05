@@ -11,28 +11,19 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Show login page
-     */
+    
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle login request
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // authenticate user
         $request->authenticate();
 
-        // security session regenerate
         $request->session()->regenerate();
 
         $user = $request->user();
-
-        // ================= ROLE BASED REDIRECT =================
 
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
@@ -41,14 +32,9 @@ class AuthenticatedSessionController extends Controller
         if ($user->role === 'vendor') {
             return redirect()->route('vendor.dashboard');
         }
-
-        // default customer redirect
         return redirect()->route('home');
     }
 
-    /**
-     * Logout user
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
