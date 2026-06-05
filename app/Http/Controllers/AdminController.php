@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    // ================= DASHBOARD =================
+    // DASHBOARD
     public function dashboard()
     {
         $totalProducts = Product::count();
@@ -37,12 +37,10 @@ class AdminController extends Controller
         ));
     }
 
-    // ================= USERS LIST =================
+    //USERS LIST
     public function users(Request $request)
     {
         $users = User::query()
-
-            // search
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->search;
 
@@ -52,7 +50,6 @@ class AdminController extends Controller
                 });
             })
 
-            // role filter (future use)
             ->when($request->filled('role'), function ($query) use ($request) {
                 $query->where('role', $request->role);
             })
@@ -64,17 +61,15 @@ class AdminController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    // ================= DELETE USER =================
+    //DELETE USER
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
 
-        // prevent self delete
         if (auth()->check() && $user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }
 
-        // protect admin account
         if ($user->role === 'admin') {
             return back()->with('error', 'Admin account cannot be deleted.');
         }
@@ -84,8 +79,7 @@ class AdminController extends Controller
         return back()->with('success', 'User deleted successfully.');
     }
 
-    // ================= VENDOR APPROVAL SYSTEM =================
-
+    //Vendor Approval System
     public function pendingProducts()
     {
         $products = Product::where('approval_status', 'pending')
