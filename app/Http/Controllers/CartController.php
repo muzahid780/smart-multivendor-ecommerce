@@ -7,12 +7,6 @@ use App\Models\Product;
 
 class CartController extends Controller
 {
-    /*
-    |-----------------------------------------
-    | ADD TO CART (AJAX + NORMAL BOTH SUPPORT)
-    |-----------------------------------------
-    */
-
     public function addToCart($id)
     {
         $product = Product::findOrFail($id);
@@ -25,7 +19,6 @@ class CartController extends Controller
             ], 400);
         }
 
-        // STOCK CHECK
         if ($product->stock <= 0) {
             return response()->json([
                 'status' => 'error',
@@ -82,12 +75,7 @@ class CartController extends Controller
         ]);
     }
 
-    /*
-    |-----------------------------------------
-    | CART PAGE
-    |-----------------------------------------
-    */
-
+    //CART PAGE
     public function cartPage()
     {
         $cart = session()->get('cart', []);
@@ -104,12 +92,7 @@ class CartController extends Controller
         return view('frontend.cart', compact('cart', 'subtotal', 'shipping', 'total'));
     }
 
-    /*
-    |-----------------------------------------
-    | REMOVE ITEM
-    |-----------------------------------------
-    */
-
+    //REMOVE ITEM
     public function removeCart($id)
     {
         $cart = session()->get('cart', []);
@@ -124,12 +107,6 @@ class CartController extends Controller
             'message' => 'Product removed successfully!'
         ]);
     }
-
-    /*
-    |-----------------------------------------
-    | UPDATE CART
-    |-----------------------------------------
-    */
 
     public function updateCart(Request $request, $id)
     {
@@ -164,12 +141,6 @@ class CartController extends Controller
             'message' => 'Cart updated successfully!'
         ]);
     }
-
-    /*
-    |-----------------------------------------
-    | CLEAR CART
-    |-----------------------------------------
-    */
 
     public function clearCart()
     {
