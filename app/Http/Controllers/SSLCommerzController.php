@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
@@ -18,13 +16,12 @@ class SSLCommerzController extends Controller
     {
         $this->store_id = env('SSLCZ_STORE_ID');
         $this->store_password = env('SSLCZ_STORE_PASSWORD');
-
         $this->base_url = env('SSLCZ_MODE') === 'live'
             ? "https://securepay.sslcommerz.com"
             : "https://sandbox.sslcommerz.com";
     }
 
-    /* ================= INIT PAYMENT ================= */
+    //INIT PAYMENT
     public function pay(Request $request)
     {
         $request->validate([
@@ -40,86 +37,64 @@ class SSLCommerzController extends Controller
         if ($order->payment_status === 'paid') {
             return back()->with('error', 'Order already paid!');
         }
-
         $tran_id = uniqid('TRX_');
-
-        // store transaction id temporarily (optional but recommended)
         $order->update([
             'transaction_id' => $tran_id
         ]);
-
         $post_data = [
             'store_id' => $this->store_id,
             'store_passwd' => $this->store_password,
             'total_amount' => $order->total_price,
             'currency' => "BDT",
             'tran_id' => $tran_id,
-
             'success_url' => route('sslcommerz.success'),
             'fail_url'    => route('sslcommerz.fail'),
             'cancel_url'  => route('sslcommerz.cancel'),
-
             'cus_name'  => Auth::user()->name,
             'cus_email' => Auth::user()->email,
             'cus_add1'  => $order->shipping_address ?? 'N/A',
             'cus_phone' => $order->phone ?? 'N/A',
-
             'shipping_method' => "NO",
             'product_name' => "Ecommerce Order",
             'product_category' => "General",
             'product_profile' => "general",
-
             'num_of_item' => $order->items->count(),
         ];
-
         $response = Http::asForm()->post(
             $this->base_url . "/gwprocess/v4/api.php",
             $post_data
         );
-
         $result = $response->json();
-
         if (!empty($result['status']) && $result['status'] === 'SUCCESS') {
             return redirect($result['GatewayPageURL']);
         }
-
         return back()->with('error', 'Payment initiation failed');
     }
 
-    /* ================= SUCCESS ================= */
     public function success(Request $request)
     {
         $tran_id = $request->tran_id;
-
         if (!$tran_id) {
             return redirect()->route('home')->with('error', 'Invalid transaction');
         }
-
         $order = Order::where('transaction_id', $tran_id)->first();
-
         if (!$order) {
             return redirect()->route('home')->with('error', 'Order not found');
         }
-
         DB::transaction(function () use ($order) {
             $order->update([
                 'payment_status' => 'paid',
                 'order_status'   => 'processing'
             ]);
         });
-
         session()->forget('cart');
-
         return view('frontend.payment-success', compact('order'));
     }
 
-    /* ================= FAIL ================= */
     public function fail(Request $request)
     {
         return view('frontend.payment-fail');
     }
-
-    /* ================= CANCEL ================= */
     public function cancel()
     {
         return view('frontend.payment-cancel');
