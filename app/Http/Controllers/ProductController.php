@@ -10,8 +10,6 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    /* ================= FRONTEND ================= */
-
     public function home()
     {
         return view('frontend.home', [
@@ -20,15 +18,12 @@ class ProductController extends Controller
         ]);
     }
 
-    /* ================= SHOP ================= */
-
+    //SHOP
     public function shop(Request $request)
     {
         $search = $request->search;
         $category = $request->category;
-
         $products = Product::approved()
-
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('name', 'LIKE', "%{$search}%")
@@ -49,7 +44,6 @@ class ProductController extends Controller
                     });
                 }
             })
-
             ->latest()
             ->paginate(12)
             ->withQueryString();
@@ -67,8 +61,7 @@ class ProductController extends Controller
         return $this->shop($request);
     }
 
-    /* ================= PRODUCT DETAILS ================= */
-
+    //PRODUCT DETAILS
     public function show($slug)
     {
         $product = Product::approved()
@@ -87,8 +80,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /* ================= VENDOR PANEL ================= */
-
+    //VENDOR PANEL
     public function index()
     {
         return view('vendor.products.index', [
@@ -115,9 +107,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
-
         $images = [];
-
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
                 if ($file->isValid()) {
@@ -135,12 +125,10 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'images' => $images,
-
             'status' => 0,
             'is_approved' => false,
             'approval_status' => 'pending',
         ]);
-
         return redirect()->route('vendor.products.index')
             ->with('success', 'Product submitted for admin approval');
     }
@@ -156,7 +144,6 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::where('vendor_id', auth()->id())->findOrFail($id);
-
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
@@ -165,17 +152,12 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
-
         $images = $product->images ?? [];
-
         if ($request->hasFile('images')) {
-
             foreach ((array) $images as $img) {
                 Storage::disk('public')->delete($img);
             }
-
             $images = [];
-
             foreach ($request->file('images') as $file) {
                 if ($file->isValid()) {
                     $images[] = $file->store('products', 'public');
@@ -191,7 +173,6 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'images' => $images,
         ]);
-
         return redirect()->route('vendor.products.index')
             ->with('success', 'Product updated successfully');
     }
@@ -199,13 +180,10 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::where('vendor_id', auth()->id())->findOrFail($id);
-
         foreach ((array) $product->images as $img) {
             Storage::disk('public')->delete($img);
         }
-
         $product->delete();
-
         return back()->with('success', 'Product deleted successfully');
     }
 }
