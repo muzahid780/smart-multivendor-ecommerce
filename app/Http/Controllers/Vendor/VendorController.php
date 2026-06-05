@@ -15,19 +15,12 @@ class VendorController extends Controller
     {
         $vendorId = auth()->id();
 
-        /*
-        |--------------------------------------------------------------------------
-        | PRODUCTS
-        |--------------------------------------------------------------------------
-        */
-
         $totalProducts = Product::where('vendor_id', $vendorId)->count();
 
         $approvedProducts = Product::where('vendor_id', $vendorId)
             ->where('approval_status', 'approved')
             ->count();
 
-        // 🔥 FIX: this was missing but blade uses it
         $activeProducts = Product::where('vendor_id', $vendorId)
             ->where('approval_status', 'approved')
             ->count();
@@ -40,23 +33,11 @@ class VendorController extends Controller
             ->where('approval_status', 'rejected')
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | STOCK
-        |--------------------------------------------------------------------------
-        */
-
         $totalStock = Product::where('vendor_id', $vendorId)->sum('stock');
 
         $outOfStock = Product::where('vendor_id', $vendorId)
             ->where('stock', '<=', 0)
             ->count();
-
-        /*
-        |--------------------------------------------------------------------------
-        | ORDERS
-        |--------------------------------------------------------------------------
-        */
 
         $totalOrders = OrderItem::where('vendor_id', $vendorId)->count();
 
@@ -72,19 +53,7 @@ class VendorController extends Controller
             })
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | EARNINGS
-        |--------------------------------------------------------------------------
-        */
-
         $totalEarnings = auth()->user()->earnings ?? 0;
-
-        /*
-        |--------------------------------------------------------------------------
-        | RECENT DATA
-        |--------------------------------------------------------------------------
-        */
 
         $recentProducts = Product::where('vendor_id', $vendorId)
             ->latest()
@@ -97,16 +66,10 @@ class VendorController extends Controller
             ->limit(5)
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN VIEW
-        |--------------------------------------------------------------------------
-        */
-
         return view('vendor.dashboard', [
             'totalProducts'    => $totalProducts,
             'approvedProducts' => $approvedProducts,
-            'activeProducts'   => $activeProducts, // ✅ FIXED HERE
+            'activeProducts'   => $activeProducts,
 
             'pendingProducts'  => $pendingProducts,
             'rejectedProducts' => $rejectedProducts,
