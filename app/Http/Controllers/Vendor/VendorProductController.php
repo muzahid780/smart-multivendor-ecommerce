@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class VendorProductController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | PRODUCT LIST
-    |--------------------------------------------------------------------------
-    */
     public function index()
     {
         $products = Product::where('vendor_id', auth()->id())
@@ -25,11 +20,6 @@ class VendorProductController extends Controller
         return view('vendor.products.index', compact('products'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE PAGE
-    |--------------------------------------------------------------------------
-    */
     public function create()
     {
         $categories = Category::latest()->get();
@@ -37,11 +27,6 @@ class VendorProductController extends Controller
         return view('vendor.products.create', compact('categories'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | STORE PRODUCT
-    |--------------------------------------------------------------------------
-    */
     public function store(Request $request)
     {
         $request->validate([
@@ -84,11 +69,6 @@ class VendorProductController extends Controller
             ->with('success', 'Product added successfully');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT PAGE
-    |--------------------------------------------------------------------------
-    */
     public function edit($id)
     {
         $product = Product::where('vendor_id', auth()->id())
@@ -99,11 +79,6 @@ class VendorProductController extends Controller
         return view('vendor.products.edit', compact('product', 'categories'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE PRODUCT
-    |--------------------------------------------------------------------------
-    */
     public function update(Request $request, $id)
     {
         $product = Product::where('vendor_id', auth()->id())
@@ -120,11 +95,6 @@ class VendorProductController extends Controller
 
         $images = $product->images ?? [];
 
-        /*
-        |--------------------------------------------------------------------------
-        | NEW IMAGE UPLOAD
-        |--------------------------------------------------------------------------
-        */
         if ($request->hasFile('images')) {
 
             // delete old images
@@ -162,11 +132,6 @@ class VendorProductController extends Controller
             ->with('success', 'Product updated successfully');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE PRODUCT
-    |--------------------------------------------------------------------------
-    */
     public function destroy($id)
     {
         $product = Product::where('vendor_id', auth()->id())
