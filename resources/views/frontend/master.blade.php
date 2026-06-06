@@ -13,7 +13,7 @@
 
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-<!-- ================= NAVBAR ================= -->
+<!-- NAVBAR -->
 <nav class="bg-white shadow-md sticky top-0 z-50 border-b">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,11 +76,7 @@
         @endauth
 
     </div>
-
-    <!-- GAP CONTROL HERE -->
     <div class="w-6"></div>
-
-    <!-- AUTH -->
     <div class="flex items-center gap-3">
 
         @guest
@@ -107,12 +103,12 @@
 
 </nav>
 
-<!-- ================= MAIN ================= -->
+<!-- MAIN -->
 <main class="flex-1 min-h-screen">
     @yield('content')
 </main>
 
-<!-- ================= FOOTER ================= -->
+<!-- FOOTER -->
 <footer class="bg-gray-900 text-white pt-14 pb-8 mt-10">
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 items-start">
 

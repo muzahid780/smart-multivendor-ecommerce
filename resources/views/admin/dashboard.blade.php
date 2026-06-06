@@ -6,7 +6,7 @@
 
 @section('content')
 
-<!-- ================= KPI CARDS ================= -->
+<!-- KPI CARDS -->
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
     <!-- TOTAL ORDERS -->
@@ -83,7 +83,7 @@
 
 </div>
 
-<!-- ================= CHART SECTION ================= -->
+<!--CHART SECTION -->
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
     <!-- MONTHLY ORDERS -->
@@ -110,7 +110,7 @@
 
 </div>
 
-<!-- ================= RECENT ACTIVITY ================= -->
+<!--RECENT ACTIVITY -->
 <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100 mt-8">
 
     <div class="flex items-center justify-between mb-6">
@@ -148,7 +148,7 @@
 
 @endsection
 
-{{-- ================= SCRIPTS ================= --}}
+<!-- SCRIPTS -->
 @push('scripts')
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

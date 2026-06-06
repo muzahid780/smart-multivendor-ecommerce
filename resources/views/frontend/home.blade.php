@@ -2,7 +2,7 @@
 
 @section('content')
 
-<!-- ================= HERO ================= -->
+<!-- HERO SECTION -->
 <section class="bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-600 text-white py-20">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-center">
@@ -14,7 +14,7 @@
             </h1>
 
             <p class="mt-4 text-gray-200 text-base sm:text-lg">
-                Experience smart shopping with a modern multivendor marketplace
+                Experience smart shopping with a modern multi-vendor marketplace
                 built for speed, trust, and style.
             </p>
 
@@ -42,7 +42,7 @@
 
 </section>
 
-<!-- ================= PRODUCTS ================= -->
+<!-- PRODUCTS -->
 <section id="products" class="py-16 bg-white">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,7 +121,7 @@
 
 </section>
 
-<!-- ================= CATEGORIES ================= -->
+<!-- CATEGORIES -->
 <section id="categories" class="py-20 bg-gray-50">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
