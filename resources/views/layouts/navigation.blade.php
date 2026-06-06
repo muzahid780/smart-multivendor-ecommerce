@@ -12,7 +12,7 @@
                     ShopNest
                 </a>
 
-                <!-- UNIVERSAL SEARCH (FIXED + SAFE) -->
+                <!-- UNIVERSAL SEARCH -->
                 <div class="relative hidden md:block w-[420px]">
 
                     <input type="text"
@@ -109,7 +109,7 @@
 
 </nav>
 
-<!-- ================= SAFE AJAX SEARCH SCRIPT ================= -->
+<!-- AJAX SEARCH SCRIPT -->
 <script>
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");

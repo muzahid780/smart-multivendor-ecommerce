@@ -11,7 +11,7 @@
 
 <body class="bg-gray-100">
 
-<!-- ================= NAVBAR ================= -->
+<!-- NAVBAR -->
 <nav class="bg-white shadow">
 
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -37,7 +37,7 @@
                 Cart
             </a>
 
-            <!-- ADMIN LINK (ONLY ADMIN) -->
+            <!-- ADMIN LINK -->
             @auth
                 @if(Auth::user()->role === 'admin')
                     <a href="/admin/dashboard" class="text-red-600 font-semibold hover:text-red-800">
@@ -91,7 +91,7 @@
 
 </nav>
 
-<!-- ================= CONTENT ================= -->
+<!-- CONTENT -->
 <main class="min-h-screen container mx-auto px-6 py-8">
 
     @yield('content')
