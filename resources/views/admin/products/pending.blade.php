@@ -16,14 +16,14 @@
         </span>
     </div>
 
-    {{-- SUCCESS MESSAGE --}}
+    <!-- SUCCESS MESSAGE -->
     @if(session('success'))
         <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- EMPTY STATE --}}
+    <!-- EMPTY STATE -->
     @if($products->isEmpty())
         <div class="text-center py-10 text-gray-500">
             No pending products found
@@ -83,7 +83,7 @@
 
                         <div class="flex gap-2">
 
-                            {{-- APPROVE --}}
+                            <!-- APPROVE -->
                             <form method="POST"
                                   action="{{ route('admin.products.approve', $product->id) }}">
                                 @csrf
@@ -94,7 +94,7 @@
                                 </button>
                             </form>
 
-                            {{-- REJECT --}}
+                            <!-- REJECT -->
                             <form method="POST"
                                   action="{{ route('admin.products.reject', $product->id) }}">
                                 @csrf

@@ -147,7 +147,7 @@
                        class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white">
 
                 <p class="text-sm text-gray-500 mt-2">
-                    Upload করলে পুরাতন images replace হবে
+                    By Upload,old images can be replace
                 </p>
             </div>
 
