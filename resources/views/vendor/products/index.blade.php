@@ -1,9 +1,7 @@
 @extends('vendor.layout')
-
 @section('content')
 
 <div class="flex items-center justify-between mb-8">
-
     <div>
         <h1 class="text-3xl font-bold text-gray-800">
             My Products
@@ -18,7 +16,6 @@
        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold transition">
         + Add Product
     </a>
-
 </div>
 
 @if(session('success'))
@@ -27,13 +24,9 @@
     </div>
 @endif
 
-
 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-
     <div class="overflow-x-auto">
-
         <table class="w-full">
-
             <thead class="bg-gray-100">
                 <tr class="text-gray-700">
                     <th class="text-left px-6 py-4 font-semibold">Image</th>
@@ -44,16 +37,11 @@
                     <th class="text-center px-6 py-4 font-semibold">Actions</th>
                 </tr>
             </thead>
-
             <tbody>
 
                 @forelse($products as $product)
-
-                <!-- CLEAN PROFESSIONAL HOVER (STABLE) -->
                 <tr class="group bg-white border-t transition duration-200 ease-in-out
                            hover:bg-gray-50 hover:shadow-md">
-
-                    <!-- IMAGE -->
                     <td class="px-6 py-4">
                         <div class="w-16 h-16 rounded-xl overflow-hidden border bg-white">
                             <img src="{{ $product->first_image ?? asset('images/no-image.png') }}"
@@ -73,13 +61,11 @@
                         </p>
                     </td>
 
-                    <!-- PRICE -->
                     <td class="px-6 py-4 font-bold text-blue-600 transition-colors duration-200
                                group-hover:text-indigo-600">
                         ৳{{ number_format($product->price, 2) }}
                     </td>
 
-                    <!-- STOCK -->
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 rounded-full text-sm font-medium
                             {{ $product->stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
@@ -113,7 +99,6 @@
                             <form action="{{ route('vendor.products.destroy', $product->id) }}"
                                   method="POST"
                                   onsubmit="return confirm('Delete this product?')">
-
                                 @csrf
                                 @method('DELETE')
 
@@ -122,30 +107,19 @@
                                                bg-red-500 hover:bg-red-600 text-white transition">
                                     Delete
                                 </button>
-
                             </form>
-
                         </div>
                     </td>
-
                 </tr>
-
                 @empty
-
                 <tr>
                     <td colspan="6" class="text-center py-12 text-gray-500">
                         No products found
                     </td>
                 </tr>
-
                 @endforelse
-
             </tbody>
-
         </table>
-
     </div>
-
 </div>
-
 @endsection
