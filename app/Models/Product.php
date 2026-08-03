@@ -3,7 +3,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-
 class Product extends Model
 {
     use HasFactory;
@@ -16,17 +15,14 @@ class Product extends Model
         'stock',
         'status',
         'category_id',
-        'vendor_id',
-        'is_approved',
-        'approval_status',
     ];
     protected $casts = [
         'images' => 'array',
         'status' => 'boolean',
-        'is_approved' => 'boolean',
         'stock' => 'integer',
     ];
 
+    // Category Relation
     public function category()
     {
         return $this->belongsTo(Category::class)
@@ -34,13 +30,13 @@ class Product extends Model
                 'name' => 'No Category'
             ]);
     }
-    public function vendor()
-    {
-        return $this->belongsTo(User::class, 'vendor_id');
-    }
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
     public function getFirstImageAttribute()
     {
@@ -50,6 +46,7 @@ class Product extends Model
         }
         return asset('images/no-image.png');
     }
+
     public function getAllImagesAttribute()
     {
         if (!is_array($this->images)) {
@@ -59,29 +56,14 @@ class Product extends Model
             return Storage::url($img);
         })->toArray();
     }
-
-    // active products
     public function scopeActive($query)
     {
         return $query->where('status', 1);
-    }
-    public function scopeApproved($query)
-    {
-        return $query
-            ->where('status', 1)
-            ->where('is_approved', true)
-            ->where('approval_status', 'approved');
     }
     public function scopeInStock($query)
     {
         return $query->where('stock', '>', 0);
     }
-    public function scopeVendor($query, $vendorId)
-    {
-        return $query->where('vendor_id', $vendorId);
-    }
-
-    // search
     public function scopeSearch($query, $term)
     {
         if (!$term) {
@@ -89,7 +71,7 @@ class Product extends Model
         }
         return $query->where(function ($q) use ($term) {
             $q->where('name', 'LIKE', "%{$term}%")
-                ->orWhere('description', 'LIKE', "%{$term}%");
+              ->orWhere('description', 'LIKE', "%{$term}%");
         });
     }
 }

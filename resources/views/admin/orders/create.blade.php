@@ -12,7 +12,7 @@
 
     <!-- Sidebar -->
     <aside class="w-64 bg-gray-900 text-white p-5">
-        <h1 class="text-2xl font-bold mb-6">Admin Panel</h1>
+        <h1 class="text-2xl font-bold mb-6">ShopNest Admin</h1>
 
         <nav class="space-y-2">
             <a href="/admin/dashboard" class="block p-2 rounded hover:bg-gray-800">Dashboard</a>

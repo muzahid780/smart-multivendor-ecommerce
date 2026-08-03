@@ -1,14 +1,11 @@
 @extends('frontend.master')
 
 @section('content')
-
 <div class="bg-gray-100 min-h-screen py-12">
-
     <div class="max-w-7xl mx-auto px-6">
 
         <!-- PAGE TITLE -->
         <div class="mb-10">
-
             <h1 class="text-4xl font-bold text-gray-800">
                 Shopping Cart
             </h1>
@@ -16,7 +13,6 @@
             <p class="text-gray-500 mt-2">
                 Review your selected products
             </p>
-
         </div>
 
         @if(count($cart) > 0)
@@ -34,29 +30,15 @@
 
                         <!-- IMAGE -->
                         <div class="w-full md:w-32">
-
-                            @if($item['image'])
-
-                                <img src="{{ asset('storage/' . $item['image']) }}"
-                                     class="w-32 h-32 object-cover rounded-xl">
-
-                            @else
-
-                                <img src="https://via.placeholder.com/150"
-                                     class="w-32 h-32 object-cover rounded-xl">
-
-                            @endif
-
+                            <img src="{{ asset('storage/' . ($item['image'] ?? 'default.png')) }}"
+                                 class="w-32 h-32 object-cover rounded-xl">
                         </div>
 
                         <!-- DETAILS -->
                         <div class="flex-1">
-
                             <a href="{{ route('product.details', $item['slug']) }}"
-                               class="text-2xl font-bold text-gray-800 hover:text-indigo-600 transition">
-
+                               class="text-2xl font-bold text-gray-800 hover:text-indigo-600">
                                 {{ $item['name'] }}
-
                             </a>
 
                             <p class="text-gray-500 mt-2">
@@ -67,62 +49,36 @@
                             </p>
 
                             <p class="text-gray-500 mt-1">
-                                Available Stock:
-                                {{ $item['stock'] }}
+                                Available Stock: {{ $item['stock'] }}
                             </p>
+                        </div>
+
+                        <!-- QUANTITY (NO UPDATE BUTTON) -->
+                        <div class="flex items-center gap-2">
+
+                            <input type="number"
+                                   id="qty-{{ $id }}"
+                                   value="{{ $item['quantity'] }}"
+                                   min="1"
+                                   max="{{ $item['stock'] }}"
+                                   class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center"
+                                   onchange="updateCart({{ $id }})">
 
                         </div>
 
-                        <!-- QUANTITY -->
-                        <div>
-
-                            <form action="{{ route('cart.update', $id) }}"
-                                  method="POST"
-                                  class="flex items-center gap-2">
-
-                                @csrf
-
-                                <input type="number"
-                                       name="quantity"
-                                       value="{{ $item['quantity'] }}"
-                                       min="1"
-                                       max="{{ $item['stock'] }}"
-                                       class="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center">
-
-                                <button type="submit"
-                                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
-
-                                    Update
-
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                        <!-- SUBTOTAL -->
+                        <!-- SUBTOTAL + REMOVE -->
                         <div class="text-right">
 
                             <h3 class="text-xl font-bold text-gray-800">
                                 ৳ {{ number_format($item['price'] * $item['quantity'], 2) }}
                             </h3>
 
-                            <!-- REMOVE -->
-                            <form action="{{ route('cart.remove', $id) }}"
-                                  method="POST"
-                                  class="mt-3">
-
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit"
-                                        class="text-red-500 hover:text-red-700 font-medium">
-
-                                    Remove
-
-                                </button>
-
-                            </form>
+                            <button
+    type="button"
+    onclick="removeCart({{ $id }})"
+    class="mt-3 text-red-500 hover:text-red-700 font-medium">
+    Remove
+</button>
 
                         </div>
 
@@ -136,73 +92,40 @@
 
             <!-- ORDER SUMMARY -->
             <div>
-
                 <div class="bg-white rounded-2xl shadow-md p-6 sticky top-10">
 
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">
                         Order Summary
                     </h2>
 
-                    <!-- SUBTOTAL -->
                     <div class="flex justify-between mb-4">
-
-                        <span class="text-gray-600">
-                            Subtotal
-                        </span>
-
-                        <span class="font-semibold">
-                            ৳ {{ number_format($subtotal, 2) }}
-                        </span>
-
+                        <span>Subtotal</span>
+                        <span>৳ {{ number_format($subtotal, 2) }}</span>
                     </div>
 
-                    <!-- SHIPPING -->
                     <div class="flex justify-between mb-4">
-
-                        <span class="text-gray-600">
-                            Shipping
-                        </span>
-
-                        <span class="font-semibold">
-                            ৳ {{ number_format($shipping, 2) }}
-                        </span>
-
+                        <span>Shipping</span>
+                        <span>৳ {{ number_format($shipping, 2) }}</span>
                     </div>
 
-                    <!-- TOTAL -->
                     <div class="flex justify-between border-t pt-4 mb-6">
-
-                        <span class="text-xl font-bold text-gray-800">
-                            Total
-                        </span>
-
-                        <span class="text-2xl font-bold text-indigo-600">
+                        <span class="text-xl font-bold">Total</span>
+                        <span class="text-xl font-bold text-indigo-600">
                             ৳ {{ number_format($total, 2) }}
                         </span>
-
                     </div>
 
-                    <!-- BUTTONS -->
-                    <div class="space-y-4">
+                    <a href="{{ route('checkout') }}"
+                       class="block w-full bg-green-600 text-white text-center py-4 rounded-xl mb-3">
+                        Proceed To Checkout
+                    </a>
 
-                        <a href="{{ route('checkout') }}"
-                           class="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-4 rounded-xl font-semibold transition">
-
-                            Proceed To Checkout
-
-                        </a>
-
-                        <a href="{{ route('shop') }}"
-                           class="block w-full bg-gray-900 hover:bg-black text-white text-center py-4 rounded-xl font-semibold transition">
-
-                            Continue Shopping
-
-                        </a>
-
-                    </div>
+                    <a href="{{ route('shop') }}"
+                       class="block w-full bg-gray-900 text-white text-center py-4 rounded-xl">
+                        Continue Shopping
+                    </a>
 
                 </div>
-
             </div>
 
         </div>
@@ -211,32 +134,58 @@
 
         <!-- EMPTY CART -->
         <div class="bg-white rounded-3xl shadow-md py-24 text-center">
-
-            <div class="text-7xl mb-6">
-                🛒
-            </div>
-
-            <h2 class="text-4xl font-bold text-gray-800 mb-4">
-                Your Cart Is Empty
-            </h2>
-
-            <p class="text-gray-500 mb-10 text-lg">
-                Looks like you haven’t added anything yet.
-            </p>
+            <h2 class="text-4xl font-bold">Your Cart Is Empty</h2>
 
             <a href="{{ route('shop') }}"
-               class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition">
-
+               class="mt-6 inline-block bg-indigo-600 text-white px-10 py-4 rounded-xl">
                 Start Shopping
-
             </a>
-
         </div>
 
         @endif
 
     </div>
-
 </div>
-
 @endsection
+
+
+@push('scripts')
+<script>
+function removeCart(id) {
+
+    $.ajax({
+        url: "/cart/remove/" + id,
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            _method: "DELETE"
+        },
+
+        success: function(res) {
+
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: res.message,
+                toast: true,
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            setTimeout(function () {
+                location.reload();
+            }, 1500);
+        },
+
+        error: function(xhr) {
+
+            Swal.fire({
+                icon: 'error',
+                title: xhr.responseJSON?.message || 'Something went wrong!'
+            });
+
+        }
+    });
+}
+</script>
+@endpush

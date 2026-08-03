@@ -8,44 +8,49 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\OrderCompletedNotification;
 
 class OrderController extends Controller
 {
-    //CHECKOUT
+    // CHECKOUT PAGE
     public function checkout()
     {
         $cart = session()->get('cart', []);
+
         if (empty($cart)) {
-            return redirect('/cart')
-                ->with('error', 'Cart is empty!');
+            return redirect()
+                ->route('cart.page')
+                ->with('error', 'Your cart is empty!');
         }
+
         return view('frontend.checkout', compact('cart'));
     }
 
-    //PLACE ORDER
+    // PLACE ORDER
     public function placeOrder(Request $request)
     {
         $request->validate([
             'phone' => 'required|string|max:20',
             'shipping_address' => 'required|string|max:1000',
+            'payment_method' => 'required|in:cash_on_delivery,sslcommerz',
         ]);
-        if (!Auth::check()) {
-            return redirect()->route('login')
-                ->with('error', 'Please login first!');
-        }
+
         $cart = session()->get('cart', []);
+
         if (empty($cart)) {
-            return back()
-                ->with('error', 'Cart is empty!');
+            return redirect()
+                ->route('cart.page')
+                ->with('error', 'Your cart is empty!');
         }
+
         DB::beginTransaction();
 
         try {
+
             $total = 0;
+
             foreach ($cart as $item) {
-                $price = $item['price'] ?? 0;
-                $qty   = $item['quantity'] ?? 1;
-                $total += ($price * $qty);
+                $total += ($item['price'] * $item['quantity']);
             }
 
             $order = Order::create([
@@ -53,121 +58,85 @@ class OrderController extends Controller
                 'phone' => $request->phone,
                 'shipping_address' => $request->shipping_address,
                 'total_price' => $total,
-                'admin_commission' => 0,
-                'payment_method' => 'cash_on_delivery',
+                'payment_method' => $request->payment_method,
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
             ]);
 
             foreach ($cart as $item) {
-                $product = Product::find($item['id']);
-                if (!$product) {
-                    continue;
-                }
-                $qty = $item['quantity'] ?? 1;
 
-                //STOCK CHECK
+                $product = Product::findOrFail($item['id']);
+
+                $qty = $item['quantity'];
+
                 if ($product->stock < $qty) {
                     throw new \Exception(
-                        "Stock not available for {$product->name}"
+                        "{$product->name} does not have enough stock."
                     );
                 }
 
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
-                    'vendor_id' => $product->vendor_id,
                     'quantity' => $qty,
-                    'price' => $item['price'] ?? 0,
+                    'price' => $item['price'],
                 ]);
+
                 $product->decrement('stock', $qty);
             }
-            DB::commit();
-            session()->forget('cart');
-            return redirect()->route('order.success')
-                ->with('success', 'Order placed successfully!');
-        }
 
-        catch (\Exception $e) {
+            DB::commit();
+
+            session()->forget('cart');
+
+            // CASH ON DELIVERY
+            if ($request->payment_method === 'cash_on_delivery') {
+
+                return redirect()
+                    ->route('order.success')
+                    ->with('success', 'Order placed successfully!');
+            }
+
+            // SSLCOMMERZ
+            return redirect()
+                ->route('order.show', $order->id)
+                ->with('success', 'Order created successfully. Complete payment to confirm your order.');
+
+        } catch (\Exception $e) {
+
             DB::rollBack();
-            return back()->with(
-                'error',
-                $e->getMessage()
-            );
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
     }
 
-    //USER ORDERS
+    // USER ORDERS
     public function myOrders()
     {
         $orders = Order::with('items.product')
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
+
         return view('frontend.my-orders', compact('orders'));
     }
 
-    //ADMIN ALL ORDERS
+    // ADMIN ORDERS LIST
     public function index()
     {
         $orders = Order::with([
                 'user',
-                'items.product',
+                'items.product'
             ])
             ->latest()
             ->get();
+
         return view('admin.orders.index', compact('orders'));
     }
 
-    //UPDATE ORDER STATUS
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled'
-        ]);
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            abort(403);
-        }
-        
-        $order = Order::with([
-                'items.product.vendor'
-            ])
-            ->findOrFail($id);
-
-        $order->update([
-            'order_status' => $request->status
-        ]);
-        if (
-            $request->status === 'completed'
-            && $order->admin_commission == 0
-        ) {
-            $totalCommission = 0;
-            foreach ($order->items as $item) {
-                if (!$item->product) {
-                    continue;
-                }
-                $subtotal = $item->price * $item->quantity;
-                $commission = $subtotal * 0.10;
-                $totalCommission += $commission;
-                
-                 //VENDOR EARNINGS
-                $vendor = $item->product->vendor;
-                if ($vendor) {
-                    $vendor->increment(
-                        'earnings',
-                        $subtotal - $commission
-                    );
-                }
-            }
-            $order->update([
-                'admin_commission' => $totalCommission
-            ]);
-        }
-        return back()
-            ->with('success', 'Order status updated successfully!');
-    }
-
-    //ORDER DETAILS
+    // USER ORDER DETAILS
     public function show($id)
     {
         $order = Order::with([
@@ -175,24 +144,50 @@ class OrderController extends Controller
                 'user'
             ])
             ->findOrFail($id);
+
         if (
-            Auth::user()->role !== 'admin'
-            &&
+            Auth::user()->role !== 'admin' &&
             $order->user_id !== Auth::id()
         ) {
             abort(403);
         }
+
         return view('frontend.order-details', compact('order'));
     }
 
-    //ADMIN ORDER DETAILS
+    // ADMIN ORDER DETAILS
     public function showAdmin($id)
     {
         $order = Order::with([
-                'items.product.vendor',
+                'items.product',
                 'user'
             ])
             ->findOrFail($id);
+
         return view('admin.orders.show', compact('order'));
     }
+    // ADMIN UPDATE ORDER STATUS
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:pending,processing,completed',
+    ]);
+
+    $order = Order::with('user')->findOrFail($id);
+
+    $order->order_status = $request->status;
+
+    if ($request->status === 'completed') {
+        $order->payment_status = 'paid';
+
+        // 🔔 SEND NOTIFICATION TO USER
+        $order->user->notify(new OrderCompletedNotification($order));
+    }
+
+    $order->save();
+
+    return redirect()
+        ->route('admin.orders.show', $order->id)
+        ->with('success', 'Order status updated successfully!');
+}
 }

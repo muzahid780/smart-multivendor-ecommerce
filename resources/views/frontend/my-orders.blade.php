@@ -6,28 +6,29 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100">
-
+<body class="bg-white">
 <div class="container mx-auto px-6 py-10">
+    <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold ">
+        My Orders
+    </h1>
+    <a href="{{ route('shop') }}"
+   class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+    Continue Shopping →
+</a>
 
-    <h1 class="text-3xl font-bold mb-6">My Orders</h1>
-
+</div>
     @if($orders->count() == 0)
-
-        <div class="bg-white p-6 rounded shadow text-center">
+        <div class="bg-sky-500 p-6 rounded shadow text-center">
             <p class="text-gray-600">You have no orders yet.</p>
             <a href="{{ route('shop') }}"
-               class="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+               class="inline-block mt-4 bg-orange-600 text-white px-4 py-2 rounded">
                 Start Shopping
             </a>
         </div>
-
     @else
-
         <div class="bg-white shadow rounded overflow-x-auto">
-
             <table class="w-full">
-
                 <thead class="bg-gray-200">
                     <tr>
                         <th class="p-3 text-left">Order ID</th>
@@ -40,11 +41,8 @@
                 </thead>
 
                 <tbody>
-
                     @foreach($orders as $order)
-
                         <tr class="border-b">
-
                             <td class="p-3">
                                 #{{ $order->id }}
                             </td>
@@ -73,24 +71,16 @@
 
                             <td class="p-3">
                                 <a href="{{ route('order.show', $order->id) }}"
-                                   class="bg-gray-800 text-white px-3 py-1 rounded text-sm">
+                                   class="bg-orange-500 text-white px-3 py-1 rounded text-sm">
                                     View
                                 </a>
                             </td>
-
                         </tr>
-
                     @endforeach
-
                 </tbody>
-
             </table>
-
         </div>
-
     @endif
-
 </div>
-
 </body>
 </html>

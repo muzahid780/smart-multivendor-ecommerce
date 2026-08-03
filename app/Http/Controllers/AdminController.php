@@ -10,34 +10,45 @@ use Illuminate\Http\Request;
 class AdminController extends Controller
 {
     // DASHBOARD
-    public function dashboard()
-    {
-        $totalProducts = Product::count();
-        $totalOrders   = Order::count();
-        $totalUsers    = User::count();
+   public function dashboard()
+{
+    $totalProducts = Product::count();
+    $totalOrders   = Order::count();
+    $totalUsers    = User::count();
 
-        $totalRevenue = Order::where('order_status', 'completed')
-            ->sum('total_price');
+    // Revenue (Completed Orders)
+    $totalRevenue = Order::where('order_status', 'completed')
+        ->sum('total_price');
 
-        $monthlyOrders = Order::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+    // Pending Orders
+    $pendingOrders = Order::where('order_status', 'pending')->count();
 
-        $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+    // Delivered / Completed Orders
+    $deliveredOrders = Order::where('order_status', 'completed')->count();
 
-        return view('admin.dashboard', compact(
-            'totalProducts',
-            'totalOrders',
-            'totalUsers',
-            'totalRevenue',
-            'monthlyOrders',
-            'monthlyRevenue'
-        ));
-    }
+    // Monthly Orders Chart
+    $monthlyOrders = Order::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+        ->groupBy('month')
+        ->pluck('total', 'month');
 
-    //USERS LIST
+    // Monthly Revenue Chart
+    $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
+        ->groupBy('month')
+        ->pluck('total', 'month');
+
+    return view('admin.dashboard', compact(
+        'totalProducts',
+        'totalOrders',
+        'totalUsers',
+        'totalRevenue',
+        'pendingOrders',
+        'deliveredOrders',
+        'monthlyOrders',
+        'monthlyRevenue'
+    ));
+}
+
+    // USERS LIST
     public function users(Request $request)
     {
         $users = User::query()
@@ -49,11 +60,9 @@ class AdminController extends Controller
                       ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-
             ->when($request->filled('role'), function ($query) use ($request) {
                 $query->where('role', $request->role);
             })
-
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -61,7 +70,7 @@ class AdminController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    //DELETE USER
+    // DELETE USER
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
@@ -77,38 +86,5 @@ class AdminController extends Controller
         $user->delete();
 
         return back()->with('success', 'User deleted successfully.');
-    }
-
-    //Vendor Approval System
-    public function pendingProducts()
-    {
-        $products = Product::where('approval_status', 'pending')
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.products.pending', compact('products'));
-    }
-
-    public function approveProduct($id)
-    {
-        $product = Product::findOrFail($id);
-
-        $product->update([
-            'approval_status' => 'approved',
-        ]);
-
-        return back()->with('success', 'Product approved successfully.');
-    }
-
-    public function rejectProduct(Request $request, $id)
-    {
-        $product = Product::findOrFail($id);
-
-        $product->update([
-            'approval_status' => 'rejected',
-            'admin_note' => $request->admin_note ?? null,
-        ]);
-
-        return back()->with('success', 'Product rejected successfully.');
     }
 }
